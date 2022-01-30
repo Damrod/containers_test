@@ -98,12 +98,12 @@ isEq () {
 cmp_one () {
 	# 1=path/to/file
 
-	deepdir="deepthought"; logdir="logs"
-	mkdir -p $deepdir $logdir
+	deepdir="deepthought"; logdir="logs";leak_dir="leaks"
+	mkdir -p $deepdir $logdir $leak_dir
 	container=$(echo $1 | cut -d "/" -f 2)
 	file=$(echo $1 | cut -d "/" -f 3)
 	testname=$(echo $file | cut -d "." -f 1)
-	ft_bin="ft.$container.out"; ft_log="$logdir/ft.$testname.$container.log"
+	ft_bin="ft.$container.out"; ft_log="$logdir/ft.$testname.$container.log" ; ft_leak_log="$leak_dir/ft.$testname.$container.log"
 	std_bin="std.$container.out"; std_log="$logdir/std.$testname.$container.log"
 	diff_file="$deepdir/$testname.$container.diff"
 
@@ -127,6 +127,8 @@ cmp_one () {
 	fi
 	same_bin=$(isEq $ft_ret $std_ret)
 
+	valgrind ./$ft_bin 2>&1 | grep -e "Invalid free" -e "definitely lost" -e "==" > $ft_leak_log
+
 	diff $std_log $ft_log 2>/dev/null 1>"$diff_file";
 	compare_output $diff_file
 	same_output=$?
@@ -146,7 +148,7 @@ do_test () {
 
 function main () {
 	pheader
-	containers=(vector map)
+	containers=(map)
 	# containers=(vector list map stack queue deque multimap set multiset)
 	if [ $# -ne 0 ]; then
 		containers=($@);
