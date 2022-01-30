@@ -127,7 +127,7 @@ cmp_one () {
 	fi
 	same_bin=$(isEq $ft_ret $std_ret)
 
-	valgrind ./$ft_bin 2>&1 | grep -e "Invalid free" -e "definitely lost" -e "==" > $ft_leak_log
+	# valgrind ./$ft_bin 2>&1 | grep -e "Invalid free" -e "definitely lost" -e "==" > $ft_leak_log
 
 	diff $std_log $ft_log 2>/dev/null 1>"$diff_file";
 	compare_output $diff_file
@@ -148,7 +148,7 @@ do_test () {
 
 function main () {
 	pheader
-	containers=(map)
+	containers=(vector map)
 	# containers=(vector list map stack queue deque multimap set multiset)
 	if [ $# -ne 0 ]; then
 		containers=($@);
